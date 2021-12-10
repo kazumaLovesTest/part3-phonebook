@@ -4,7 +4,7 @@ const res = require('express/lib/response')
 
 const app =  express()
 
-const phoneBook = [
+let phoneBook = [
     { 
       "id": 1,
       "name": "Arto Hellas", 
@@ -43,6 +43,14 @@ app.get('/api/persons/:id',(request,response)=>{
       response.json(person)
     else
       response.status(404).end()
+})
+
+app.delete('/api/persons/:id',(request,response)=>{
+    const id = request.params.id
+    const person = phoneBook.find(note =>note.id == id)
+    
+    phoneBook = phoneBook.filter(phoneNumber => phoneNumber.id !== person.id)
+    response.status(204).end()
 })
 
 const Port = 3001
