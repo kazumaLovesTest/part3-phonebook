@@ -4,7 +4,7 @@ const res = require('express/lib/response')
 
 const app =  express()
 
-const notes = [
+const phoneBook = [
     { 
       "id": 1,
       "name": "Arto Hellas", 
@@ -28,12 +28,21 @@ const notes = [
 ]
 
 app.get('/api/persons',(request,response)=>{
-    response.json(notes)
+    response.json(phoneBook)
 })
 
 app.get('/info',(request,response)=>{
     const dateOfRequestSent = new Date();
-    response.send(`<div>PhoneBook has ${notes.length} Contacts</div> ${dateOfRequestSent} <div> `)
+    response.send(`<div>PhoneBook has ${phoneBook.length} Persons</div> ${dateOfRequestSent} <div> `)
+})
+
+app.get('/api/persons/:id',(request,response)=>{
+    const id =  request.params.id
+    const person = phoneBook.find(note =>note.id == id)
+    if (person)
+      response.json(person)
+    else
+      response.status(404).end()
 })
 
 const Port = 3001
