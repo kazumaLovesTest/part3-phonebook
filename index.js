@@ -1,8 +1,7 @@
-const { request, response } = require('express')
 const express = require('express')
-const res = require('express/lib/response')
-
 const app =  express()
+
+app.use(express.json())
 
 let phoneBook = [
     { 
@@ -53,7 +52,40 @@ app.delete('/api/persons/:id',(request,response)=>{
     response.status(204).end()
 })
 
+app.post('/api/persons/',(request,response)=>{
+  const body = request.body
+  if(!body.name || !body.number)
+  {
+    return response.status(400).json({
+      error:'missing content'
+    })  }
+  if (isInPhonebook(body.name))
+  {
+    return response.status(400).json({
+      error:"name must be unique"
+    })
+  }
+  const person ={
+     id: gernerateRandomId(),
+     name:body.name,
+     number:body.number,
+     date: new Date(),
+     
+  }
+  phoneBook = phoneBook.concat(person);
+  response.json(person)
+})
+
 const Port = 3001
 app.listen(Port, ()=>{
     console.log(`Listening at port: ${Port}`)
 })
+
+const gernerateRandomId = () =>{
+  const min = phoneBook.length
+  const max = Number.MAX_SAFE_INTEGER
+  return Math.random() * (max - min) + min
+}
+const isInPhonebook = (name) => {
+  return phoneBook.find(person => person.name === name)
+}
