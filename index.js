@@ -82,7 +82,7 @@ app.post('/api/persons/',(request,response)=>{
   response.json(person)
 })
 
-const Port = 3001
+const Port = process.env.PORT || 3001
 app.listen(Port, ()=>{
     console.log(`Listening at port: ${Port}`)
 })
