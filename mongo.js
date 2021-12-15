@@ -1,4 +1,3 @@
-const { get } = require('express/lib/response')
 const mongoose  = require('mongoose')
 
 const send = (person) => {
@@ -16,12 +15,26 @@ const getAll = () => {
     })
 }
 
-if (process.argv.length < 3)
+const create = () => {
+    const newName = process.argv[3]
+    const newNumber = process.argv[4]
+
+    const person = new Person({
+        name:newName,
+        number:newNumber,
+        date:new Date(),
+        important:true,
+    })
+    return person
+}
+
+const inputLength = process.argv.length
+if ( inputLength < 3)
 {
     console.log('Please provide password')
     process.exit(1)
 }
-else if (process.argv.length > 5)
+else if (inputLength > 5)
 {
     console.log('too many args')
     process.exit(1)
@@ -42,16 +55,8 @@ const personSchema = new mongoose.Schema({
 
 const Person = mongoose.model(`Person`, personSchema)
 
-if (process.argv.length > 3){
-    const newName = process.argv[3]
-    const newNumber = process.argv[4]
-
-    const person = new Person({
-        name:newName,
-        number:newNumber,
-        date:new Date(),
-        important:true,
-    })
+if (inputLength > 3){
+    const person = create()
     send(person)
 }
 else {

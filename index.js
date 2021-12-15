@@ -1,6 +1,9 @@
+require('dotenv').config()
 const express = require('express')
 const morgan = require('morgan')
 const cors = require('cors')
+const mongoose = require('mongoose')
+const Person = require(`./models/person`)
 
 const app =  express()
 
@@ -34,7 +37,9 @@ let phoneBook = [
 ]
 
 app.get('/api/persons',(request,response)=>{
-    response.json(phoneBook)
+    Person.find({}).then(result =>{
+      response.json(result)
+    })
 })
 
 app.get('/info',(request,response)=>{
@@ -43,13 +48,15 @@ app.get('/info',(request,response)=>{
 })
 
 app.get('/api/persons/:id',(request,response)=>{
-    const id =  request.params.id
-    const person = phoneBook.find(note =>note.id == id)
-    if (person)
-      response.json(person)
-    else
-      response.status(404).end()
-})
+    const id = request.params.id
+    console.log(id)
+    Person.findById(id).then(person =>{
+      if (person)
+        response.json(person)
+      else
+        response.status(404).end()
+    })   
+  })
 
 app.delete('/api/persons/:id',(request,response)=>{
     const id = request.params.id
@@ -59,28 +66,32 @@ app.delete('/api/persons/:id',(request,response)=>{
     response.status(204).end()
 })
 
-app.post('/api/persons/',(request,response)=>{
+app.post('/api/persons',(request,response)=>{
   const body = request.body
+  console.log(body.content)
   if(!body.name || !body.number)
   {
     return response.status(400).json({
       error:'missing content'
-    })  }
+    })  
+  }
   if (isInPhonebook(body.name))
   {
     return response.status(400).json({
       error:"name must be unique"
     })
   }
-  const person ={
-     id: gernerateRandomId(),
+  const newPerson = new Person({
      name:body.name,
      number:body.number,
+     id:gernerateRandomId(),
      date: new Date(),
-     
-  }
-  phoneBook = phoneBook.concat(person);
-  response.json(person)
+     important:true
+  })
+  console.log(newPerson)
+  newPerson.save().then(savedPerson =>{
+    response.json(savedPerson)
+  })
 })
 
 const Port = process.env.PORT || 3001
