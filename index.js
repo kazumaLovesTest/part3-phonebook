@@ -13,39 +13,16 @@ app.use(morgan('tiny'))
 app.use(cors())
 app.use(express.static('build'))
 
-let phoneBook = [
-    { 
-      "id": 1,
-      "name": "Arto Hellas", 
-      "number": "040-123456"
-    },
-    { 
-      "id": 2,
-      "name": "Ada Lovelace", 
-      "number": "39-44-5323523"
-    },
-    { 
-      "id": 3,
-      "name": "Dan Abramov", 
-      "number": "12-43-234345"
-    },
-    { 
-      "id": 4,
-      "name": "Mary Poppendieck", 
-      "number": "39-23-6423122"
-    }
-]
-
 app.get('/api/persons',(request,response)=>{
     Person.find({}).then(result =>{
       response.json(result)
     })
 })
 
-app.get('/info',(request,response)=>{
-    const dateOfRequestSent = new Date();
-    response.send(`<div>PhoneBook has ${phoneBook.length} Persons</div> ${dateOfRequestSent} <div> `)
-})
+// app.get('/info',(request,response)=>{
+//     const dateOfRequestSent = new Date();
+//     response.send(`<div>PhoneBook has ${phoneBook.length} Persons</div> ${dateOfRequestSent} <div> `)
+// })
 
 app.get('/api/persons/:id',(request,response)=>{
     const id = request.params.id
@@ -92,16 +69,30 @@ app.post('/api/persons',(request,response)=>{
   })
 })
 
+app.put('/api/persons/:id',(request,response)=>{
+  const body = request.body
+  if(!body.name || !body.number)
+  {
+    return response.status(400).json({
+      error:'missing content'
+    })  
+  }
+  const newPerson = {
+    name:body.name,
+    number:body.number
+  }
+  Person.findByIdAndUpdate(request.params.id,newPerson, {new:true})
+        .then(updatedPerson => {
+          response.json(updatedPerson)
+        })
+        .catch(error => console.log(error))
+})
 const Port = process.env.PORT || 3001
 app.listen(Port, ()=>{
     console.log(`Listening at port: ${Port}`)
 })
 
 const gernerateRandomId = () =>{
-  const min = phoneBook.length
   const max = Number.MAX_SAFE_INTEGER
-  return Math.random() * (max - min) + min
-}
-const isInPhonebook = (name) => {
-  return phoneBook.find(person => person.name === name)
+  return Math.random() * (max - 1) + 1
 }
