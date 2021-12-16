@@ -60,10 +60,14 @@ app.get('/api/persons/:id',(request,response)=>{
 
 app.delete('/api/persons/:id',(request,response)=>{
     const id = request.params.id
-    const person = phoneBook.find(note =>note.id == id)
+    Person.findByIdAndDelete(id)
+          .then(deletedPerson =>{
+            response.status(204).end()
+          })
+          .catch(error =>{
+            console.log(error)
+          })
     
-    phoneBook = phoneBook.filter(phoneNumber => phoneNumber.id !== person.id)
-    response.status(204).end()
 })
 
 app.post('/api/persons',(request,response)=>{
@@ -74,12 +78,6 @@ app.post('/api/persons',(request,response)=>{
     return response.status(400).json({
       error:'missing content'
     })  
-  }
-  if (isInPhonebook(body.name))
-  {
-    return response.status(400).json({
-      error:"name must be unique"
-    })
   }
   const newPerson = new Person({
      name:body.name,
